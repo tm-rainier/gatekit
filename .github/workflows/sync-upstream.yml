@@ -1,0 +1,23 @@
+name: sync from upstream
+
+# This file exists only in the tm-rainier fork. Every Monday, after the original repo
+# (secure-builder-dev/gatekit) publishes its weekly release, it pulls those changes into this fork.
+# Run it any time from the Actions tab: "sync from upstream" → Run workflow.
+on:
+  schedule:
+    - cron: "0 9 * * 1"   # Mondays 09:00 UTC, about 3 hours after the upstream release job
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    if: github.repository == 'tm-rainier/gatekit'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Merge upstream main into this fork's main
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api -X POST "repos/${GITHUB_REPOSITORY}/merge-upstream" -f branch=main --jq '.message'
